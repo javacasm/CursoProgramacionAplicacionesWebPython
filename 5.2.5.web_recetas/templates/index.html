@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Recetas</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold mb-4">Mis Recetas</h1>
+        
+        <!-- Formulario de búsqueda -->
+        <form method="POST" class="mb-6">
+            <input type="text" name="search" value="{{ termino_busqueda }}" 
+                   class="border p-2 rounded w-full md:w-1/2" placeholder="Buscar recetas por título, contenido o etiquetas...">
+            <button type="submit" class="bg-blue-500 text-white p-2 rounded mt-2">Buscar</button>
+        </form>
+
+        <!-- Lista de recetas -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for receta in recetas %}
+            <div class="bg-white p-4 rounded shadow">
+                <h2 class="text-xl font-semibold">
+                    <a href="{{ url_for('receta', nombre=receta.filename) }}">{{ receta.title }}</a>
+                </h2>
+                <p class="text-gray-600">Categoría: {{ receta.category or 'Sin categoría' }}</p>
+                <p class="text-gray-600">Etiquetas: {{ receta.tags | join(', ') or 'Ninguna' }}</p>
+            </div>
+            {% else %}
+            <p>No se encontraron recetas.</p>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
