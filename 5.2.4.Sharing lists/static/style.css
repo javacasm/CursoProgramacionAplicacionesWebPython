@@ -1,0 +1,35 @@
+:root {
+    --primary-pastel: #B8D8D8;
+    --secondary-pastel: #D8B8D8;
+    --accent-pastel: #D8B8B8;
+    --text-dark: #333333;
+}
+
+body {
+    background-color: var(--primary-pastel);
+    color: var(--text-dark);
+}
+
+.navbar {
+    background-color: var(--secondary-pastel) !important;
+}
+
+.card {
+    background-color: #FFFFFF;
+    border: 1px solid var(--accent-pastel);
+}
+
+.btn-primary {
+    background-color: var(--accent-pastel);
+    border-color: var(--accent-pastel);
+}
+
+.btn-primary:hover {
+    background-color: #C89A9A;
+    border-color: #C89A9A;
+}
+
+.bg-accent-pastel {
+    background-color: var(--accent-pastel);
+    color: var(--text-dark);
+}

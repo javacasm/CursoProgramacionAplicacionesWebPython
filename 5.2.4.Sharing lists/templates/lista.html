@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}{{ lista.titulo if lista else 'Crear Lista' }}{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        {% if lista %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">{{ lista.titulo }}</h2>
+                    <p class="card-text">{{ lista.descripcion }}</p>
+                    <p class="card-text"><small class="text-muted">Favoritos: {{ lista.contador_favoritos }}</small></p>
+                    <p class="card-text"><small class="text-muted">Likes: {{ lista.likes | length }}</small></p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            Etiquetas: 
+                            {% for le in lista.etiquetas %}
+                                {{ le.etiqueta.nombre }}{% if not loop.last %}, {% endif %}
+                            {% else %}
+                                Ninguna
+                            {% endfor %}
+                        </small>
+                    </p>
+                    <div class="d-flex gap-2">
+                        <form method="POST" action="{{ url_for('like_lista', id_lista=lista.id) }}">
+                            <button type="submit" class="btn btn-primary">Like</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('favorito_lista', id_lista=lista.id) }}">
+                            <button type="submit" class="btn btn-primary">Favorito</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('suscribir_lista', id_lista=lista.id) }}">
+                            <button type="submit" class="btn btn-primary">Suscribir</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('duplicar_lista', id_lista=lista.id) }}">
+                            <button type="submit" class="btn btn-primary">Duplicar</button>
+                        </form>
+                        <a href="{{ url_for('exportar_csv', id_lista=lista.id) }}" class="btn btn-primary">Exportar CSV</a>
+                    </div>
+                </div>
+            </div>
+            <h3>Ítems</h3>
+            <form method="GET" class="mb-3">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="etiquetas" placeholder="Filtrar por etiquetas (separadas por comas)" value="{{ filtro_etiquetas | join(', ') }}">
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                </div>
+            </form>
+            <ul class="list-group mb-4">
+                {% for item in items %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ item.descripcion }}</strong>
+                                {% if item.enlace %}<a href="{{ item.enlace }}" target="_blank" class="text-lavender">Enlace</a>{% endif %}
+                                {% if item.imagen %}<br><img src="{{ item.imagen }}" alt="Item" style="max-width: 100px;">{% endif %}
+                                <p>
+                                    <small class="text-muted">
+                                        Orden: {{ item.orden }} | Likes: {{ item.likes | length }} | Etiquetas: 
+                                        {% for ie in item.etiquetas %}
+                                            {{ ie.etiqueta.nombre }}{% if not loop.last %}, {% endif %}
+                                        {% else %}
+                                            Ninguna
+                                        {% endfor %}
+                                    </small>
+                                </p>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <form method="POST" action="{{ url_for('like_item', id_item=item.id) }}">
+                                    <button type="submit" class="btn btn-primary btn-sm">Like</button>
+                                </form>
+                                <form method="POST" action="{{ url_for('check_item', id_item=item.id) }}">
+                                    <button type="submit" class="btn btn-primary btn-sm">Check</button>
+                                </form>
+                            </div>
+                        </div>
+                    </li>
+                {% else %}
+                    <li class="list-group-item">No hay ítems en esta lista.</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% if current_user.is_authenticated %}
+            <div class="card">
+                <div class="card-body">
+                    <h3>{{ 'Editar Lista' if lista else 'Crear Lista' }}</h3>
+                    <form method="POST" action="{{ url_for('crear_lista') if not lista else url_for('ver_lista', id_lista=lista.id) }}">
+                        <div class="mb-3">
+                            <label for="titulo" class="form-label">Título</label>
+                            <input type="text" class="form-control" id="titulo" name="titulo" value="{{ lista.titulo if lista else '' }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="descripcion" name="descripcion">{{ lista.descripcion if lista else '' }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="imagen" class="form-label">URL de Imagen</label>
+                            <input type="text" class="form-control" id="imagen" name="imagen" value="{{ lista.imagen if lista else '' }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="visibilidad" class="form-label">Visibilidad</label>
+                            <select class="form-control" id="visibilidad" name="visibilidad">
+                                <option value="publica" {% if lista and lista.visibilidad == 'publica' %}selected{% endif %}>Pública</option>
+                                <option value="privada" {% if lista and lista.visibilidad == 'privada' %}selected{% endif %}>Privada</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="etiquetas" class="form-label">Etiquetas (separadas por comas)</label>
+                            <input type="text" class="form-control" id="etiquetas" name="etiquetas" value="{% if lista %}{% for le in lista.etiquetas %}{{ le.etiqueta.nombre }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Guardar Lista</button>
+                    </form>
+                </div>
+            </div>
+            {% if lista %}
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h3>Añadir Ítem</h3>
+                        <form method="POST" action="{{ url_for('agregar_item', id_lista=lista.id) }}">
+                            <div class="mb-3">
+                                <label for="descripcion_item" class="form-label">Descripción</label>
+                                <input type="text" class="form-control" id="descripcion_item" name="descripcion" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="enlace" class="form-label">Enlace</label>
+                                <input type="text" class="form-control" id="enlace" name="enlace">
+                            </div>
+                            <div class="mb-3">
+                                <label for="imagen_item" class="form-label">URL de Imagen</label>
+                                <input type="text" class="form-control" id="imagen" name="imagen">
+                            </div>
+                            <div class="mb-3">
+                                <label for="orden" class="form-label">Orden</label>
+                                <input type="number" class="form-control" id="orden" name="orden">
+                            </div>
+                            <div class="mb-3">
+                                <label for="etiquetas_item" class="form-label">Etiquetas (separadas por comas)</label>
+                                <input type="text" class="form-control" id="etiquetas_item" name="etiquetas">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Añadir Ítem</button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Listas Públicas{% endblock %}
+{% block content %}
+<h1 class="mb-4">Listas Públicas</h1>
+<div class="row">
+    {% for lista in listas %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                {% if lista.imagen %}
+                    <img src="{{ lista.imagen }}" class="card-img-top" alt="{{ lista.titulo }}" style="max-height: 200px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ lista.titulo }}</h5>
+                    <p class="card-text">{{ lista.descripcion }}</p>
+                    <p class="card-text"><small class="text-muted">Favoritos: {{ lista.contador_favoritos }}</small></p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            Etiquetas: 
+                            {% for le in lista.etiquetas %}
+                                {{ le.etiqueta.nombre }}{% if not loop.last %}, {% endif %}
+                            {% else %}
+                                Ninguna
+                            {% endfor %}
+                        </small>
+                    </p>
+                    <a href="{{ url_for('ver_lista', id_lista=lista.id) }}" class="btn btn-secondary">Ver Lista</a>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <p>No hay listas públicas disponibles.</p>
+    {% endfor %}
+</div>
+{% endblock %}

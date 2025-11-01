@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Mis Listas{% endblock %}
+{% block content %}
+<h1 class="mb-4">Mis Listas</h1>
+<form method="GET" class="mb-3">
+    <div class="input-group">
+        <input type="text" class="form-control" name="etiquetas" placeholder="Filtrar por etiquetas (separadas por comas)" value="{{ filtro_etiquetas | join(', ') }}">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+    </div>
+<div class="input-group mb-3">
+    <select class="form-select" name="visibilidad">
+        <option value="">Todas</option>
+        <option value="publica">Públicas</option>
+        <option value="privada">Privadas</option>
+    </select>
+    <input type="text" class="form-control" name="etiquetas" placeholder="Filtrar por etiquetas (separadas por comas)" value="{{ filtro_etiquetas | join(', ') }}">
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+</div>
+</form>
+<div class="row">
+    {% for lista in listas %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                {% if lista.imagen %}
+                    <img src="{{ lista.imagen }}" class="card-img-top" alt="{{ lista.titulo }}" style="max-height: 200px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ lista.titulo }}</h5>
+                    <p class="card-text">{{ lista.descripcion }}</p>
+                    <p class="card-text"><small class="text-muted">Favoritos: {{ lista.contador_favoritos }}</small></p>
+                    <p class="card-text"><small class="text-muted">Visibilidad: {{ lista.visibilidad }}</small></p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            Etiquetas:
+                            {% for le in lista.etiquetas %}
+                                <span class="badge bg-accent-pastel">{{ le.etiqueta.nombre }}</span>
+                            {% else %}
+                                Ninguna
+                            {% endfor %}
+                        </small>
+                    </p>
+                    <a href="{{ url_for('ver_lista', id_lista=lista.id) }}" class="btn btn-secondary">Ver Lista</a>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <p>No tienes listas creadas.</p>
+    {% endfor %}
+</div>
+{% endblock %}
